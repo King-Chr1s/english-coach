@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>English Coach</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="English Coach" />
+<meta name="theme-color" content="#0F2E29" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --pine:#0F2E29;--pine2:#183F38;--pine3:#0C2723;--line:#2B5C53;--line2:#1E4740;
+    --bone:#EDE6D6;--mint:#BFDCCE;--dim:#6E9A8C;--dim2:#8FB6A8;--amber:#E9B23C;--coral:#E4735F;
+    --nav: calc(58px + env(safe-area-inset-bottom));
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;height:100%;background:var(--pine);}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--mint);display:flex;flex-direction:column;overflow:hidden;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+  .mono{font-family:'DM Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;font-size:10px;}
+  .disp{font-family:'Fraunces','Georgia',serif;}
+
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:calc(12px + env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line);flex-shrink:0;}
+  header h1{margin:0;font-size:19px;color:var(--bone);font-weight:600;}
+  header .sub{color:var(--dim);}
+  .hstats{display:flex;gap:12px;color:var(--dim);align-items:center;}
+  .hstats b{color:var(--amber);font-weight:500;}
+  .flame{color:var(--amber);}
+
+  #screen{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;}
+  .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .pad{padding:24px 18px calc(26px + var(--nav));max-width:640px;margin:0 auto;width:100%;}
+  .pad h2{font-family:'Fraunces',Georgia,serif;color:var(--bone);font-size:25px;margin:6px 0 10px;font-weight:400;line-height:1.3;}
+  .pad p{color:var(--dim2);font-size:14px;line-height:1.6;margin:0 0 20px;}
+  .lead{color:var(--dim);}
+
+  .cta{background:var(--amber);color:#12302B;border-radius:10px;padding:14px 20px;font-weight:600;font-size:15px;width:100%;}
+  .cta:disabled{opacity:.4;}
+  .ghost{border:1px solid var(--line);border-radius:10px;padding:12px 18px;font-size:14px;color:var(--mint);}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .row>*{flex:1;}
+
+  .pick{display:grid;gap:8px;}
+  .pick button{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);
+    color:var(--bone);padding:14px 15px;border-radius:10px;text-align:left;font-size:15px;transition:.15s;}
+  .pick button:active{background:#173C35;}
+  .pick em{font-style:normal;color:var(--dim);font-size:12px;}
+
+  label.f{display:block;margin:0 0 16px;}
+  label.f span{display:block;color:var(--dim);margin-bottom:6px;}
+  input.f,select.f{width:100%;background:#173C35;border:1px solid var(--line);border-radius:9px;color:var(--bone);
+    padding:12px 13px;font-family:inherit;font-size:15px;}
+  textarea{resize:none;background:#173C35;border:1px solid var(--line);border-radius:9px;color:var(--bone);
+    padding:11px 13px;font-family:inherit;font-size:15px;line-height:1.45;}
+
+  .goal{display:flex;align-items:center;gap:14px;background:#12332E;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:22px;}
+  .ring{width:52px;height:52px;flex-shrink:0;}
+  .ring circle{fill:none;stroke-width:5;}
+  .ring .bg{stroke:var(--line2);}
+  .ring .fg{stroke:var(--amber);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .4s;}
+  .goal .txt b{color:var(--bone);font-size:15px;}
+  .goal .txt div{color:var(--dim);font-size:12px;margin-top:2px;}
+  .goal.done{border-color:var(--amber);}
+
+  .prog{display:flex;gap:3px;margin-bottom:24px;}
+  .prog i{flex:1;height:3px;border-radius:2px;background:#22514F;}
+  .prog i.on{background:var(--amber);}
+  .q{font-family:'Fraunces',Georgia,serif;font-size:22px;color:var(--bone);line-height:1.45;margin:0 0 22px;}
+  .opts{display:grid;gap:8px;}
+  .opts button{background:#173C35;border:1px solid var(--line);color:var(--bone);padding:14px 15px;border-radius:10px;text-align:left;font-size:16px;transition:.15s;}
+  .opts button:active{border-color:var(--amber);background:#1D4941;}
+
+  .badge{display:inline-flex;align-items:baseline;gap:8px;background:var(--bone);color:#0F2E29;border-radius:10px;padding:9px 16px;font-family:'Fraunces',Georgia,serif;font-size:32px;margin-bottom:18px;}
+  .badge small{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#5A6D66;}
+  .axis{margin-bottom:14px;}
+  .axis .r{color:var(--dim);display:flex;justify-content:space-between;margin-bottom:6px;}
+  .bar{height:8px;background:var(--line2);border-radius:5px;overflow:hidden;}
+  .bar>span{display:block;height:100%;background:var(--amber);}
+  .bar.mint>span{background:var(--mint);}
+  .prio{list-style:none;padding:0;margin:0 0 22px;}
+  .prio li{border-left:2px solid var(--amber);padding:4px 0 4px 12px;margin-bottom:10px;color:var(--bone);font-size:14px;line-height:1.5;}
+
+  .card{background:var(--bone);color:#123029;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;}
+  .card .mono{color:#7A8B84;}
+  .wrong{font-size:14px;color:#9B4436;text-decoration:line-through;text-decoration-color:var(--coral);text-decoration-thickness:1.5px;}
+  .right{font-family:'Fraunces',Georgia,serif;font-size:17px;color:#0F2E29;line-height:1.35;}
+  .cnote{font-size:12px;color:#5A6D66;font-family:'DM Mono',monospace;}
+
+  .chatwrap{display:flex;flex-direction:column;height:100%;}
+  .chatscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px;display:flex;flex-direction:column;gap:16px;}
+  .turn{display:flex;flex-direction:column;gap:8px;max-width:88%;}
+  .learner{align-self:flex-end;align-items:flex-end;}
+  .tutor{align-self:flex-start;}
+  .bubble{padding:11px 14px;border-radius:13px;font-size:15px;line-height:1.55;position:relative;}
+  .learner .bubble{background:var(--bone);color:#123029;border-bottom-right-radius:3px;}
+  .tutor .bubble{background:var(--pine2);border:1px solid var(--line);border-bottom-left-radius:3px;}
+  .say{color:var(--dim);padding:2px 6px 2px 0;display:inline-flex;align-items:center;gap:5px;}
+  .say svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;}
+  .say.on{color:var(--amber);}
+  .fr{color:var(--dim);padding:2px 0;text-align:left;}
+  .metarow{display:flex;gap:12px;align-items:center;}
+  .frtext{font-size:13px;color:var(--dim2);line-height:1.5;border-left:2px solid var(--line);padding-left:10px;}
+  .up{background:#22514833;border:1px dashed var(--amber);border-radius:10px;padding:10px 13px;}
+  .up b{color:var(--amber);font-weight:500;font-size:14px;display:block;}
+  .up span{display:block;color:var(--dim2);font-size:12px;margin-top:3px;}
+  .compose{border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:flex-end;flex-shrink:0;}
+  .compose textarea{flex:1;min-height:46px;max-height:140px;}
+  .mic{background:#173C35;border:1px solid var(--line);color:var(--mint);border-radius:9px;padding:12px;flex-shrink:0;}
+  .mic.rec{background:var(--coral);color:#fff;border-color:var(--coral);}
+  .mic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;display:block;}
+  .send{background:var(--amber);color:#12302B;border-radius:9px;padding:12px 16px;font-weight:600;font-size:14px;flex-shrink:0;}
+  .send:disabled{opacity:.4;}
+  .dots{color:var(--dim);font-size:14px;padding:4px 2px;}
+  .err{color:var(--coral);font-size:13px;padding:0 16px 8px;}
+  .empty{color:#4F7268;font-size:13px;line-height:1.6;}
+  .item{border-bottom:1px solid var(--line2);padding-bottom:12px;margin-bottom:12px;}
+  .item .right{color:var(--bone);font-size:15px;}
+  .item .wrong{color:#B4715F;font-size:12px;}
+  .seg{display:flex;gap:8px;margin-bottom:16px;}
+  .seg button{flex:1;border:1px solid var(--line);border-radius:8px;padding:9px;color:var(--dim);}
+  .seg button.on{color:var(--amber);border-color:var(--amber);}
+
+  .flash{background:var(--pine2);border:1px solid var(--line);border-radius:14px;padding:26px 20px;min-height:230px;display:flex;flex-direction:column;justify-content:center;gap:14px;margin-bottom:18px;}
+  .flash .ctx{color:var(--dim);font-size:13px;}
+  .flash .front{font-family:'Fraunces',Georgia,serif;font-size:22px;color:var(--bone);line-height:1.4;}
+  .flash .back{border-top:1px solid var(--line);padding-top:14px;}
+  .flash .back .right{color:var(--mint);}
+  .flash .back .cnote{color:var(--dim);}
+
+  nav{display:flex;flex-shrink:0;border-top:1px solid var(--line);background:var(--pine3);padding-bottom:env(safe-area-inset-bottom);}
+  nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;color:var(--dim);font-size:10px;}
+  nav button.on{color:var(--amber);}
+  nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;}
+
+  .toast{position:fixed;left:50%;bottom:calc(var(--nav) + 16px);transform:translateX(-50%);background:var(--amber);color:#12302B;
+    padding:11px 18px;border-radius:22px;font-weight:600;font-size:14px;z-index:20;box-shadow:0 6px 20px #0006;opacity:0;transition:.25s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="sub mono" id="hsub">Laboratoire de langue</div>
+      <h1 class="disp">English Coach</h1>
+    </div>
+    <div class="hstats mono">
+      <span class="flame">🔥 <b id="hstreak">0</b></span>
+      <span>Jours <b id="hdays">0</b></span>
+    </div>
+  </header>
+
+  <div id="screen"><div class="scroll"><div class="pad"><p class="lead">Chargement…</p></div></div></div>
+  <div class="toast" id="toast"></div>
+
+  <nav id="nav" style="display:none">
+    <button data-nav="coach"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Coach</button>
+    <button data-nav="test"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M4 12a8 8 0 108-8"/></svg>Bilan</button>
+    <button data-nav="notebook"><svg viewBox="0 0 24 24"><path d="M6 4h11a2 2 0 012 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 012-2z"/></svg>Carnet</button>
+    <button data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/></svg>Réglages</button>
+  </nav>
+
+<script>
+"use strict";
+
+/* ---------------- persistence ---------------- */
+var KEY = "encoach:v2";
+var OLD = "encoach:v1";
+var state = {
+  groqKey:"", model:"openai/gpt-oss-120b",
+  profile:null,
+  notebook:{ corrections:[], expressions:[] },
+  log:{},          // date -> exchanges that day
+  goal:3,          // daily exchange goal (floor, kept deliberately low)
+  speak:true       // auto-read tutor replies aloud
+};
+function load(){
+  try{
+    var r=localStorage.getItem(KEY);
+    if(r){ state=Object.assign(state, JSON.parse(r)); return; }
+    var o=localStorage.getItem(OLD);
+    if(o){
+      var s=JSON.parse(o);
+      state=Object.assign(state,{ groqKey:s.groqKey||"", model:s.model||state.model, profile:s.profile||null, notebook:s.notebook||state.notebook });
+      (s.days||[]).forEach(function(d){ state.log[d]=state.log[d]||1; });
+      save();
+    }
+  }catch(e){}
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+/* ---------------- content ---------------- */
+var QUESTIONS = [
+  { band:"A2", q:"She ___ to the office every morning.", a:["goes","go","going","is go"], k:0 },
+  { band:"A2", q:"I ___ my keys yesterday.", a:["lost","have lost","lose","was losing"], k:0 },
+  { band:"A2", q:"There ___ a lot of people in the meeting.", a:["were","was","is","has"], k:0 },
+  { band:"A2", q:"He is good ___ solving problems.", a:["at","in","for","on"], k:0 },
+  { band:"B1", q:"I have worked here ___ 2019.", a:["since","for","during","from"], k:0 },
+  { band:"B1", q:"If the client calls, I ___ him the invoice.", a:["will send","would send","send","sent"], k:0 },
+  { band:"B1", q:"She asked me ___ the report.", a:["to check","that I check","checking","check"], k:0 },
+  { band:"B1", q:"I am used ___ with international teams.", a:["to working","to work","working","work"], k:0 },
+  { band:"B1", q:"The system ___ updated last night.", a:["was","is","has","were"], k:0 },
+  { band:"B2", q:"___ I known about the bug, I would have escalated it.", a:["Had","If","Have","Should"], k:0 },
+  { band:"B2", q:"He denied ___ the file.", a:["deleting","to delete","delete","that delete"], k:0 },
+  { band:"B2", q:"It is the kind of issue ___ takes hours to reproduce.", a:["that","what","which it","who"], k:0 },
+  { band:"B2", q:"I would rather you ___ the client directly.", a:["contacted","contact","to contact","contacting"], k:0 },
+  { band:"C1", q:"No sooner ___ the patch than the server crashed.", a:["had we deployed","we had deployed","we deployed","did we deploy"], k:0 },
+  { band:"C1", q:"The report, ___ conclusions were disputed, was withdrawn.", a:["whose","which","that its","of which"], k:0 }
+];
+var PROD_TASK="Describe a problem you solved at work recently: what went wrong, what you did, and how it ended.";
+var LEVELS=["A2","B1","B2","C1"];
+var TONE={
+  A2:"Speak at A2-B1 level: short sentences, very frequent vocabulary, present and past simple, no idioms. Reply in 2-3 short sentences. Correct only fundamentals: verb tense, word order, prepositions, articles.",
+  B1:"Speak at B1-B2 level: natural everyday English, contractions, common phrasal verbs. Reply in 2-4 sentences. Correct structure first: tenses, word order, prepositions, relative clauses.",
+  B2:"Speak at B2-C1 level: richer vocabulary, idiomatic but not obscure. Reply in 3-4 sentences. Correct register, collocation and naturalness as well as grammar.",
+  C1:"Speak at C1 level: nuance, varied register, real idiom. Challenge the learner's positions. Correct subtle things: connotation, rhythm, over-formality."
+};
+var SCENARIOS=[
+  { id:"support", label:"Support client", hint:"Tu gères un ticket en anglais", brief:"Roleplay: the learner works in software support for accounting professionals. You are an English-speaking client with a software issue (login, export, reconciliation, invoice, migration). Stay in character and be realistic." },
+  { id:"interview", label:"Entretien", hint:"Consultant fonctionnel", brief:"Roleplay: you are a hiring manager interviewing the learner for a functional consultant role on accounting or ERP software. One question per turn, follow up on weak answers." },
+  { id:"meeting", label:"Réunion", hint:"Priorités, blocages, désaccords", brief:"Roleplay: you are a colleague in an international team meeting. Discuss priorities, deadlines and blockers. Push the learner to disagree, propose and summarise." },
+  { id:"debate", label:"Débat", hint:"Économie, marchés, tech", brief:"Roleplay: you are a sharp but friendly debate partner on economics, markets, geopolitics or technology. Take a position and ask the learner to defend theirs." },
+  { id:"free", label:"Discussion libre", hint:"Sport, voyage, quotidien", brief:"Roleplay: you are a friendly English-speaking acquaintance having a relaxed conversation about everyday life, sport, travel and weekends." }
+];
+
+/* ---------------- helpers ---------------- */
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+function activeDays(){ return Object.keys(state.log).filter(function(d){ return state.log[d]>0; }); }
+function streakOf(){
+  var set=state.log, n=0, d=new Date();
+  if(!set[todayKey()]) d.setDate(d.getDate()-1);
+  while(true){ var k=d.toISOString().slice(0,10); if(!set[k]||set[k]<1) break; n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+function todayCount(){ return state.log[todayKey()]||0; }
+function logExchange(){
+  var t=todayKey(), before=todayCount();
+  state.log[t]=before+1; save(); refreshStats();
+  if(before+1===state.goal){ toast("Objectif du jour atteint 🎯 — série "+streakOf()+" j"); }
+}
+function refreshStats(){
+  document.getElementById("hstreak").textContent = streakOf();
+  document.getElementById("hdays").textContent = activeDays().length;
+  document.getElementById("hsub").textContent = state.profile
+    ? ("Niveau "+state.profile.level+" · testé le "+state.profile.last.date)
+    : "Laboratoire de langue";
+}
+var toastT=null;
+function toast(msg){
+  var el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(function(){ el.classList.remove("show"); },2600);
+}
+
+/* ---------------- speech output (TTS) ---------------- */
+var voices=[], speechUnlocked=false, speakingId=null;
+function loadVoices(){ try{ voices=window.speechSynthesis?speechSynthesis.getVoices():[]; }catch(e){ voices=[]; } }
+function pickVoice(){
+  if(!voices.length) loadVoices();
+  var en=voices.filter(function(v){ return /^en(-|_|$)/i.test(v.lang); });
+  var us=en.filter(function(v){ return /US/i.test(v.lang); });
+  var gb=en.filter(function(v){ return /GB/i.test(v.lang); });
+  return us[0]||gb[0]||en[0]||null;
+}
+function unlockSpeech(){
+  if(speechUnlocked||!window.speechSynthesis) return;
+  try{ var u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); speechUnlocked=true; }catch(e){}
+}
+function speak(text,id){
+  if(!window.speechSynthesis) return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang="en-US"; u.rate=0.98; u.pitch=1;
+    var v=pickVoice(); if(v) u.voice=v;
+    speakingId=id!=null?id:null;
+    u.onend=function(){ speakingId=null; var b=document.querySelector('.say[data-say="'+id+'"]'); if(b) b.classList.remove("on"); };
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+if(window.speechSynthesis){ try{ speechSynthesis.onvoiceschanged=loadVoices; }catch(e){} }
+
+/* ---------------- speech input (dictation) ---------------- */
+var Rec = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+var recog=null, recording=false;
+function micSupported(){ return !!Rec; }
+function toggleMic(){
+  if(!micSupported()){ toast("Utilise le micro du clavier iOS pour dicter"); return; }
+  if(recording){ try{ recog.stop(); }catch(e){} return; }
+  try{
+    recog=new Rec(); recog.lang="en-US"; recog.interimResults=true; recog.continuous=false;
+    var cin=document.getElementById("cin"); var base=cin?cin.value:"";
+    recog.onresult=function(ev){ var txt=""; for(var i=0;i<ev.results.length;i++){ txt+=ev.results[i][0].transcript; } if(cin){ cin.value=(base?base+" ":"")+txt; } };
+    recog.onend=function(){ recording=false; var b=document.getElementById("mic"); if(b) b.classList.remove("rec"); };
+    recog.onerror=function(){ recording=false; var b=document.getElementById("mic"); if(b) b.classList.remove("rec"); };
+    recog.start(); recording=true;
+    var mb=document.getElementById("mic"); if(mb) mb.classList.add("rec");
+  }catch(e){ toast("Dictée indisponible ici"); }
+}
+
+/* ---------------- Groq API ---------------- */
+function buildSystem(level, brief){
+  return "You are an English conversation coach for a French native speaker at CEFR level "+level+".\n\n"+
+    TONE[level]+"\n\nRules:\n"+
+    "- Always end your reply with a question so the conversation continues.\n"+
+    "- Never correct the learner inside the reply itself. Corrections go in the corrections field only.\n"+
+    "- Correct real mistakes only. Ignore typos and missing capitals.\n"+
+    "- Explanations are written in FRENCH, short and concrete.\n\n"+
+    "Respond with a raw JSON object and NOTHING else. Keys:\n"+
+    '{ "reply": string, "reply_fr": string (French translation of reply), '+
+    '"corrections": [ { "original": string, "fixed": string, "note": string (French, max 15 words) } ] (max 3, empty if clean), '+
+    '"upgrade": { "phrase": string, "meaning": string (French) } or null }\n\n'+
+    "Scenario: "+brief;
+}
+function extractJSON(txt){
+  var t=String(txt).replace(/```json|```/g,"").trim();
+  try{ return JSON.parse(t); }catch(e){}
+  var i=t.indexOf("{"), j=t.lastIndexOf("}");
+  if(i>=0&&j>i){ return JSON.parse(t.slice(i,j+1)); }
+  throw new Error("bad json");
+}
+function groqCall(system, messages, forceJSON){
+  var body={ model:state.model, messages:[{role:"system",content:system}].concat(messages), temperature:0.6, max_tokens:1200 };
+  if(forceJSON){ body.response_format={type:"json_object"}; }
+  return fetch("https://api.groq.com/openai/v1/chat/completions",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+state.groqKey },
+    body:JSON.stringify(body)
+  }).then(function(res){
+    if(!res.ok){ return res.text().then(function(t){ throw new Error("HTTP "+res.status+" "+t.slice(0,120)); }); }
+    return res.json();
+  }).then(function(data){ return extractJSON(data.choices[0].message.content); });
+}
+
+/* ---------------- router ---------------- */
+var current="coach", screenEl, navEl;
+function go(name){ current=name; render(); }
+function render(){
+  refreshStats();
+  navEl.style.display = state.groqKey ? "flex" : "none";
+  Array.prototype.forEach.call(navEl.querySelectorAll("button"),function(b){ b.classList.toggle("on", b.getAttribute("data-nav")===current); });
+  if(!state.groqKey) return renderSetup();
+  if(current==="coach") return renderCoachHome();
+  if(current==="test") return renderTest();
+  if(current==="notebook") return renderNotebook();
+  if(current==="review") return renderReview();
+  if(current==="settings") return renderSettings();
+}
+function set(html){ screenEl.innerHTML=html; }
+
+/* ---------------- setup ---------------- */
+function renderSetup(){
+  set('<div class="scroll"><div class="pad">'+
+    '<span class="mono lead">Configuration · une fois par appareil</span>'+
+    '<h2>Ta clé Groq.</h2>'+
+    '<p>Cette app appelle l\'API Groq directement depuis ton téléphone. Ta clé reste stockée sur cet appareil (localStorage) et n\'est jamais publiée sur GitHub. Crée-la gratuitement sur <b style="color:var(--mint)">console.groq.com/keys</b>.</p>'+
+    '<label class="f"><span>Clé API Groq (gsk_…)</span><input class="f" id="kInput" type="password" placeholder="gsk_..." autocomplete="off" /></label>'+
+    '<label class="f"><span>Modèle</span><input class="f" id="mInput" value="'+esc(state.model)+'" /></label>'+
+    '<button class="cta" onclick="App.saveKey()">Enregistrer et démarrer</button>'+
+    '</div></div>');
+}
+
+/* ---------------- coach home + chat ---------------- */
+var scenario=null, messages=[], history=[], loading=false, chatErr="", openFr={};
+function goalRing(){
+  var c=todayCount(), g=state.goal, pct=Math.min(1,c/g), R=22, C=2*Math.PI*R, off=C*(1-pct), done=c>=g;
+  return '<div class="goal'+(done?" done":"")+'">'+
+    '<svg class="ring" viewBox="0 0 52 52"><circle class="bg" cx="26" cy="26" r="'+R+'"/>'+
+    '<circle class="fg" cx="26" cy="26" r="'+R+'" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg>'+
+    '<div class="txt"><b>'+(done?"Objectif atteint aujourd\'hui":"Objectif du jour : "+c+" / "+g+" échanges")+'</b>'+
+    '<div>'+(done?("Série de "+streakOf()+" jours — reste régulier, pas parfait."):"Un plancher volontairement bas : 3 échanges suffisent à valider ta journée.")+'</div></div></div>';
+}
+function renderCoachHome(){
+  if(scenario) return renderChat();
+  var html='<div class="scroll"><div class="pad">';
+  if(!state.profile){
+    html+='<span class="mono lead">Étape 1</span><h2>Commence par te situer.</h2>'+
+      '<p>Passe le bilan pour caler ton niveau de départ. Le coach s\'adaptera automatiquement ensuite.</p>'+
+      '<button class="cta" onclick="App.go(\'test\')">Passer le bilan — 15 min</button>'+
+      '<div style="height:14px"></div>'+
+      '<button class="ghost" style="width:100%" onclick="App.skipTest()">Je pars sur B1 pour l\'instant</button>';
+  }else{
+    html+=goalRing();
+    html+='<span class="mono lead">Entraînement · niveau '+esc(state.profile.level)+'</span>'+
+      '<h2>Choisis une situation.</h2>'+
+      '<p>Tu écris (ou tu dictes) en anglais, je réponds en anglais et je lis à voix haute. Tes erreurs reviennent en fiches, et tout s\'archive dans le carnet.</p>'+
+      '<div class="pick">';
+    SCENARIOS.forEach(function(s){ html+='<button onclick="App.start(\''+s.id+'\')"><span>'+esc(s.label)+'</span><em>'+esc(s.hint)+'</em></button>'; });
+    html+='</div>';
+  }
+  html+='</div></div>';
+  set(html);
+}
+function renderChat(){
+  var body='<div class="chatwrap"><div class="chatscroll" id="cs">';
+  messages.forEach(function(m,i){
+    if(m.role==="learner"){
+      body+='<div class="turn learner"><div class="bubble">'+esc(m.text)+'</div></div>';
+    }else{
+      body+='<div class="turn tutor"><div class="bubble">'+esc(m.text)+'</div>'+
+        '<div class="metarow">'+
+        '<button class="say mono" data-say="'+i+'" onclick="App.say('+i+')"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"/></svg>Écouter</button>'+
+        '<button class="fr mono" onclick="App.toggleFr('+i+')">'+(openFr[i]?"Masquer FR":"Voir en français")+'</button>'+
+        '</div>'+
+        (openFr[i]?'<div class="frtext">'+esc(m.fr)+'</div>':'');
+      (m.corrections||[]).forEach(function(c){
+        body+='<div class="card"><span class="mono">Correction</span>'+
+          '<span class="wrong">'+esc(c.original)+'</span><span class="right">'+esc(c.fixed)+'</span><span class="cnote">'+esc(c.note)+'</span></div>';
+      });
+      if(m.upgrade){ body+='<div class="up"><span class="mono lead">Plus naturel</span><b>'+esc(m.upgrade.phrase)+'</b><span>'+esc(m.upgrade.meaning)+'</span></div>'; }
+      body+='</div>';
+    }
+  });
+  if(loading){ body+='<div class="dots">···</div>'; }
+  body+='</div>';
+  if(chatErr){ body+='<div class="err">'+esc(chatErr)+'</div>'; }
+  body+='<div class="compose">'+
+    '<button class="mic" id="mic" onclick="App.mic()" title="Dicter"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 013 3v6a3 3 0 01-6 0V5a3 3 0 013-3z"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></button>'+
+    '<textarea id="cin" rows="1" placeholder="Écris ou dicte en anglais"></textarea>'+
+    '<button class="send" id="csend" onclick="App.send()">Envoyer</button></div></div>';
+  set(body);
+  var cs=document.getElementById("cs"); if(cs) cs.scrollTop=cs.scrollHeight;
+  var cin=document.getElementById("cin");
+  if(cin){
+    cin.addEventListener("keydown",function(e){ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); App.send(); } });
+    cin.addEventListener("input",function(){ cin.style.height="auto"; cin.style.height=Math.min(cin.scrollHeight,140)+"px"; });
+  }
+  document.getElementById("csend").disabled=loading;
+}
+function start(id){
+  scenario=SCENARIOS.filter(function(s){return s.id===id;})[0];
+  messages=[]; history=[]; openFr={}; chatErr="";
+  render();
+  ask("Let's start. Greet me and open the conversation.");
+}
+function ask(text){
+  loading=true; chatErr=""; renderChat();
+  history.push({role:"user",content:text});
+  var lvl=state.profile?state.profile.level:"B1";
+  groqCall(buildSystem(lvl,scenario.brief),history,true).then(function(p){
+    history.push({role:"assistant",content:JSON.stringify(p)});
+    var idx=messages.length;
+    messages.push({role:"tutor",text:p.reply,fr:p.reply_fr,corrections:p.corrections||[],upgrade:p.upgrade||null});
+    var nc=(p.corrections||[]).map(function(c){ return {original:c.original,fixed:c.fixed,note:c.note,at:Date.now(),seen:0}; });
+    var ne=p.upgrade?[{phrase:p.upgrade.phrase,meaning:p.upgrade.meaning,at:Date.now()}]:[];
+    if(nc.length||ne.length){
+      state.notebook.corrections=nc.concat(state.notebook.corrections).slice(0,400);
+      state.notebook.expressions=ne.concat(state.notebook.expressions).slice(0,400);
+      save();
+    }
+    loading=false; renderChat();
+    if(state.speak) speak(p.reply, idx);
+  }).catch(function(e){
+    history.pop(); loading=false; chatErr="La réponse n'est pas arrivée ("+e.message+"). Vérifie clé/modèle dans Réglages, puis renvoie."; renderChat();
+  });
+}
+function send(){
+  var cin=document.getElementById("cin"); if(!cin) return;
+  var t=cin.value.trim(); if(!t||loading) return;
+  unlockSpeech();
+  logExchange();
+  messages.push({role:"learner",text:t}); cin.value="";
+  ask(t);
+}
+function toggleFr(i){ openFr[i]=!openFr[i]; renderChat(); }
+function sayMsg(i){
+  var m=messages[i]; if(!m) return;
+  var b=document.querySelector('.say[data-say="'+i+'"]');
+  if(speakingId===i){ try{ speechSynthesis.cancel(); }catch(e){} speakingId=null; if(b) b.classList.remove("on"); return; }
+  Array.prototype.forEach.call(document.querySelectorAll(".say"),function(x){ x.classList.remove("on"); });
+  if(b) b.classList.add("on");
+  speak(m.text, i);
+}
+
+/* ---------------- test ---------------- */
+var qi=0, answers=[], prod="", phase="mcq", testErr="";
+function renderTest(){
+  if(state.profile&&phase==="done") return renderResult();
+  var html='<div class="scroll"><div class="pad"><div class="prog">';
+  for(var i=0;i<QUESTIONS.length;i++){ html+='<i class="'+(i<answers.length?"on":"")+'"></i>'; }
+  html+='</div>';
+  if(phase==="mcq"){
+    var Q=QUESTIONS[qi];
+    html+='<span class="mono lead">Structure · '+(qi+1)+' / '+QUESTIONS.length+'</span><p class="q">'+esc(Q.q)+'</p><div class="opts">';
+    Q.a.forEach(function(opt,idx){ html+='<button onclick="App.answer('+idx+')">'+esc(opt)+'</button>'; });
+    html+='</div>';
+  }else if(phase==="prod"){
+    html+='<span class="mono lead">Production · dernière étape</span><h2>Écris-moi quatre ou cinq phrases.</h2>'+
+      '<p>'+esc(PROD_TASK)+'<br>Ne triche pas avec un traducteur : c\'est cette partie qui mesure ton vrai niveau.</p>'+
+      '<textarea id="pin" style="width:100%;min-height:150px;margin-bottom:14px" placeholder="Write here, in English."></textarea>';
+    if(testErr) html+='<div class="err" style="padding:0 0 10px">'+esc(testErr)+'</div>';
+    html+='<button class="cta" id="pbtn" onclick="App.submitTest()">Voir mon bilan</button><p class="mono lead" id="phint" style="margin-top:12px"></p>';
+  }else if(phase==="scoring"){
+    html+='<p class="dots">Correction de ta production en cours ···</p>';
+  }
+  html+='</div></div>';
+  set(html);
+  var pin=document.getElementById("pin");
+  if(pin){
+    pin.value=prod;
+    var upd=function(){ prod=pin.value; var n=prod.trim()?prod.trim().split(/\s+/).length:0;
+      document.getElementById("pbtn").disabled=n<15;
+      document.getElementById("phint").textContent=n<15?("Encore quelques mots ("+n+"/15)"):""; };
+    pin.addEventListener("input",upd); upd();
+  }
+}
+function answer(idx){ answers.push(idx); if(qi+1<QUESTIONS.length){ qi++; } else { phase="prod"; } renderTest(); }
+function gradeStructure(ans){
+  var correct=0; QUESTIONS.forEach(function(q,i){ if(ans[i]===q.k) correct++; });
+  var pct=Math.round(correct/QUESTIONS.length*100), level="A2";
+  if(correct>=13) level="C1"; else if(correct>=11) level="B2"; else if(correct>=8) level="B1";
+  return { correct:correct, pct:pct, level:level };
+}
+function submitTest(){
+  phase="scoring"; testErr=""; renderTest();
+  var structure=gradeStructure(answers);
+  var sys="You assess the written English of a French native speaker against the CEFR. Be accurate, neither generous nor harsh. Respond with a raw JSON object and nothing else:\n"+
+    '{ "production_level":"A2"|"B1"|"B2"|"C1", '+
+    '"patterns":[ { "label":string (French), "example":string (quote from their text), "fix":string } ] (max 3), '+
+    '"priorities":[string,string,string] (French), '+
+    '"comment":string (French, 2 sentences, honest and encouraging) }';
+  groqCall(sys,[{role:"user",content:"Task given: "+PROD_TASK+"\n\nLearner's answer:\n"+prod}],true).then(function(p){
+    var prodIdx=LEVELS.indexOf(p.production_level); if(prodIdx<0) prodIdx=1;
+    var structIdx=LEVELS.indexOf(structure.level);
+    var overall=Math.max(0,Math.round((prodIdx+structIdx)/2));
+    var result={ structure:structure, production:LEVELS[prodIdx], patterns:p.patterns||[], priorities:p.priorities||[], comment:p.comment||"", level:LEVELS[overall], date:todayKey() };
+    var hist=((state.profile&&state.profile.history)||[]).concat([{date:result.date,level:result.level,pct:structure.pct}]);
+    state.profile={ level:result.level, last:result, history:hist };
+    save(); phase="done"; renderResult();
+  }).catch(function(e){ testErr="Le bilan n'a pas pu être corrigé ("+e.message+"). Réessaie."; phase="prod"; renderTest(); });
+}
+function renderResult(){
+  var res=state.profile&&state.profile.last;
+  if(!res){ phase="mcq"; qi=0; answers=[]; prod=""; return renderTest(); }
+  var html='<div class="scroll"><div class="pad"><span class="mono lead">Bilan du '+esc(res.date)+'</span>'+
+    '<div class="badge" style="margin-top:10px">'+esc(res.level)+' <small>niveau global</small></div>';
+  if(res.structure){
+    html+='<div class="axis"><div class="r mono"><span>Structure (reconnaissance)</span><span>'+res.structure.correct+'/15 · '+res.structure.level+'</span></div>'+
+      '<div class="bar"><span style="width:'+res.structure.pct+'%"></span></div></div>';
+    var pw=((LEVELS.indexOf(res.production)+1)/LEVELS.length)*100;
+    html+='<div class="axis"><div class="r mono"><span>Production (écrit libre)</span><span>'+esc(res.production)+'</span></div>'+
+      '<div class="bar mint"><span style="width:'+pw+'%"></span></div></div>';
+  }
+  if(res.comment) html+='<p style="margin-top:18px">'+esc(res.comment)+'</p>';
+  if(res.patterns&&res.patterns.length){
+    html+='<span class="mono lead">Ce qui revient</span><div style="display:grid;gap:10px;margin:10px 0 22px">';
+    res.patterns.forEach(function(p){ html+='<div class="card"><span class="mono">'+esc(p.label)+'</span><span class="wrong">'+esc(p.example)+'</span><span class="right">'+esc(p.fix)+'</span></div>'; });
+    html+='</div>';
+  }
+  if(res.priorities&&res.priorities.length){
+    html+='<span class="mono lead">Par quoi commencer</span><ul class="prio" style="margin-top:10px">';
+    res.priorities.forEach(function(p){ html+='<li>'+esc(p)+'</li>'; }); html+='</ul>';
+  }
+  html+='<button class="cta" onclick="App.go(\'coach\')">Commencer l\'entraînement</button>'+
+    '<div style="height:12px"></div><button class="ghost" style="width:100%" onclick="App.retest()">Repasser le bilan</button></div></div>';
+  set(html);
+}
+function retest(){ phase="mcq"; qi=0; answers=[]; prod=""; testErr=""; renderTest(); }
+
+/* ---------------- notebook ---------------- */
+var nbTab="corrections";
+function renderNotebook(){
+  var n=state.notebook;
+  var html='<div class="scroll"><div class="pad"><span class="mono lead">Carnet</span><h2>Ce que tu as appris.</h2>';
+  if(n.corrections.length){
+    html+='<div class="row" style="margin-bottom:18px"><button class="cta" onclick="App.startReview()">Réviser ('+n.corrections.length+')</button>'+
+      '<button class="ghost" onclick="App.exportAnki()">Export Anki</button></div>';
+  }
+  html+='<div class="seg">'+
+    '<button class="'+(nbTab==="corrections"?"on":"")+'" onclick="App.nb(\'corrections\')">Corrections ('+n.corrections.length+')</button>'+
+    '<button class="'+(nbTab==="expressions"?"on":"")+'" onclick="App.nb(\'expressions\')">Expressions ('+n.expressions.length+')</button></div>';
+  if(nbTab==="corrections"){
+    if(!n.corrections.length) html+='<p class="empty">Rien encore. Écris une phrase, même bancale — c\'est comme ça que le carnet se remplit.</p>';
+    else n.corrections.forEach(function(c){ html+='<div class="item"><div class="wrong">'+esc(c.original)+'</div><div class="right">'+esc(c.fixed)+'</div><div class="cnote lead">'+esc(c.note)+'</div></div>'; });
+  }else{
+    if(!n.expressions.length) html+='<p class="empty">Les expressions proposées pendant la conversation s\'archivent ici.</p>';
+    else n.expressions.forEach(function(e){ html+='<div class="item"><div class="right">'+esc(e.phrase)+'</div><div class="cnote lead">'+esc(e.meaning)+'</div></div>'; });
+  }
+  html+='</div></div>';
+  set(html);
+}
+
+/* ---------------- review (flashcards) ---------------- */
+var rev={ queue:[], i:0, revealed:false };
+function startReview(){
+  var items=state.notebook.corrections.slice();
+  items.sort(function(a,b){ return (a.seen||0)-(b.seen||0); });
+  rev={ queue:items.slice(0,20), i:0, revealed:false };
+  if(!rev.queue.length){ toast("Rien à réviser"); return; }
+  current="review"; render();
+}
+function renderReview(){
+  var q=rev.queue[rev.i];
+  if(!q){
+    set('<div class="scroll"><div class="pad"><span class="mono lead">Révision</span><h2>Session terminée.</h2>'+
+      '<p>Tu as revu '+rev.queue.length+' fiche'+(rev.queue.length>1?"s":"")+'. Reviens demain : c\'est la répétition espacée qui ancre, pas une session unique.</p>'+
+      '<button class="cta" onclick="App.go(\'notebook\')">Retour au carnet</button></div></div>');
+    return;
+  }
+  var html='<div class="scroll"><div class="pad">'+
+    '<span class="mono lead">Révision · '+(rev.i+1)+' / '+rev.queue.length+'</span>'+
+    '<div class="flash"><div class="ctx">Corrige cette phrase</div><div class="front">'+esc(q.original)+'</div>';
+  if(rev.revealed){ html+='<div class="back"><div class="right">'+esc(q.fixed)+'</div><div class="cnote">'+esc(q.note)+'</div></div>'; }
+  html+='</div>';
+  if(!rev.revealed){ html+='<button class="cta" onclick="App.reveal()">Révéler</button>'; }
+  else{ html+='<div class="row"><button class="ghost" onclick="App.grade(0)">À revoir</button><button class="cta" onclick="App.grade(1)">Acquis</button></div>'; }
+  html+='</div></div>';
+  set(html);
+}
+function reveal(){ rev.revealed=true; renderReview(); }
+function grade(ok){
+  var q=rev.queue[rev.i];
+  if(q){ q.seen=(q.seen||0)+(ok?2:1); save(); }
+  rev.i++; rev.revealed=false; renderReview();
+}
+
+/* ---------------- export Anki ---------------- */
+function exportAnki(){
+  var lines=[];
+  state.notebook.corrections.forEach(function(c){
+    lines.push(["Corrige : "+c.original, c.fixed+(c.note?("  —  "+c.note):"")].join("\t"));
+  });
+  state.notebook.expressions.forEach(function(e){ lines.push([e.phrase, e.meaning||""].join("\t")); });
+  if(!lines.length){ toast("Carnet vide"); return; }
+  var blob=new Blob([lines.join("\n")],{type:"text/tab-separated-values"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download="english-coach-anki.txt"; document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },500);
+  toast("Fichier Anki généré ("+lines.length+" cartes)");
+}
+
+/* ---------------- settings ---------------- */
+function renderSettings(){
+  set('<div class="scroll"><div class="pad"><span class="mono lead">Réglages</span><h2>Paramètres.</h2>'+
+    '<label class="f"><span>Clé API Groq</span><input class="f" id="sKey" type="password" value="'+esc(state.groqKey)+'" autocomplete="off" /></label>'+
+    '<label class="f"><span>Modèle</span><input class="f" id="sModel" value="'+esc(state.model)+'" /></label>'+
+    '<label class="f"><span>Objectif quotidien (échanges)</span><input class="f" id="sGoal" type="number" min="1" max="30" value="'+state.goal+'" /></label>'+
+    '<label class="f" style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="sSpeak" '+(state.speak?"checked":"")+' style="width:auto"/> <span style="margin:0">Lecture à voix haute des réponses</span></label>'+
+    '<button class="cta" onclick="App.saveSettings()">Enregistrer</button>'+
+    '<div style="height:26px"></div><span class="mono lead">Oral</span>'+
+    '<p style="margin-top:8px">La lecture des réponses marche partout. Pour <b style="color:var(--mint)">parler</b>, le bouton micro utilise la dictée du navigateur quand elle existe ; sur iPhone, utilise plutôt le micro du clavier iOS.</p>'+
+    '<span class="mono lead">Données</span><p style="margin-top:8px">Bilan, carnet, série et objectif sont stockés sur cet appareil.</p>'+
+    '<button class="ghost" style="width:100%;color:var(--coral);border-color:#5a3630" onclick="App.wipe()">Tout effacer</button>'+
+    '<p class="mono lead" style="margin-top:24px">Modèle par défaut : openai/gpt-oss-120b · modèles actifs sur console.groq.com/docs/models</p></div></div>');
+}
+
+/* ---------------- actions ---------------- */
+var App={
+  go:go,
+  saveKey:function(){
+    var k=document.getElementById("kInput").value.trim(), m=document.getElementById("mInput").value.trim();
+    if(!k){ document.getElementById("kInput").focus(); return; }
+    state.groqKey=k; if(m) state.model=m; save(); current="coach"; render();
+  },
+  skipTest:function(){
+    state.profile={ level:"B1", last:{date:"estimé",level:"B1",structure:null,production:"B1",patterns:[],priorities:[],comment:""}, history:[] };
+    save(); render();
+  },
+  start:start, send:send, mic:toggleMic, say:sayMsg, toggleFr:toggleFr,
+  answer:answer, submitTest:submitTest, retest:retest,
+  nb:function(t){ nbTab=t; renderNotebook(); },
+  startReview:startReview, reveal:reveal, grade:grade, exportAnki:exportAnki,
+  saveSettings:function(){
+    var k=document.getElementById("sKey").value.trim(), m=document.getElementById("sModel").value.trim();
+    var g=parseInt(document.getElementById("sGoal").value,10);
+    if(k) state.groqKey=k; if(m) state.model=m;
+    if(g>=1&&g<=30) state.goal=g;
+    state.speak=document.getElementById("sSpeak").checked; save();
+    var b=event.target, old=b.textContent; b.textContent="Enregistré ✓"; setTimeout(function(){ b.textContent=old; },1400);
+  },
+  wipe:function(){
+    if(confirm("Effacer bilan, carnet, série et clé sur cet appareil ?")){
+      localStorage.removeItem(KEY); localStorage.removeItem(OLD);
+      state={ groqKey:"", model:"openai/gpt-oss-120b", profile:null, notebook:{corrections:[],expressions:[]}, log:{}, goal:3, speak:true };
+      scenario=null; messages=[]; history=[]; current="coach"; render();
+    }
+  }
+};
+window.App=App;
+
+/* ---------------- PWA ---------------- */
+function installPWA(){
+  try{
+    var c=document.createElement("canvas"); c.width=180; c.height=180;
+    var x=c.getContext("2d");
+    x.fillStyle="#0F2E29"; x.fillRect(0,0,180,180);
+    x.fillStyle="#E9B23C"; x.font="600 96px Georgia,serif"; x.textAlign="center"; x.textBaseline="middle"; x.fillText("E",90,98);
+    var icon=c.toDataURL("image/png");
+    var l=document.createElement("link"); l.rel="apple-touch-icon"; l.href=icon; document.head.appendChild(l);
+    var manifest={ name:"English Coach", short_name:"English", start_url:".", display:"standalone", background_color:"#0F2E29", theme_color:"#0F2E29", icons:[{src:icon,sizes:"180x180",type:"image/png"}] };
+    var blob=new Blob([JSON.stringify(manifest)],{type:"application/json"});
+    var ml=document.createElement("link"); ml.rel="manifest"; ml.href=URL.createObjectURL(blob); document.head.appendChild(ml);
+  }catch(e){}
+}
+
+/* ---------------- boot ---------------- */
+function boot(){
+  screenEl=document.getElementById("screen"); navEl=document.getElementById("nav");
+  Array.prototype.forEach.call(navEl.querySelectorAll("button"),function(b){
+    b.addEventListener("click",function(){ var name=b.getAttribute("data-nav"); if(name==="coach") scenario=null; go(name); });
+  });
+  load(); loadVoices(); installPWA(); render();
+}
+boot();
+</script>
+</body>
+</html>
