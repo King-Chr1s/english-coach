@@ -366,7 +366,7 @@ function renderSetup(){
 }
 
 /* ---------------- coach home + chat ---------------- */
-var scenario=null, messages=[], history=[], loading=false, chatErr="", openFr={};
+var scenario=null, messages=[], convo=[], loading=false, chatErr="", openFr={};
 function goalRing(){
   var c=todayCount(), g=state.goal, pct=Math.min(1,c/g), R=22, C=2*Math.PI*R, off=C*(1-pct), done=c>=g;
   return '<div class="goal'+(done?" done":"")+'">'+
@@ -434,16 +434,16 @@ function renderChat(){
 }
 function start(id){
   scenario=SCENARIOS.filter(function(s){return s.id===id;})[0];
-  messages=[]; history=[]; openFr={}; chatErr="";
+  messages=[]; convo=[]; openFr={}; chatErr="";
   render();
   ask("Let's start. Greet me and open the conversation.");
 }
 function ask(text){
   loading=true; chatErr=""; renderChat();
-  history.push({role:"user",content:text});
+  convo.push({role:"user",content:text});
   var lvl=state.profile?state.profile.level:"B1";
-  groqCall(buildSystem(lvl,scenario.brief),history,true).then(function(p){
-    history.push({role:"assistant",content:JSON.stringify(p)});
+  groqCall(buildSystem(lvl,scenario.brief),convo,true).then(function(p){
+    convo.push({role:"assistant",content:JSON.stringify(p)});
     var idx=messages.length;
     messages.push({role:"tutor",text:p.reply,fr:p.reply_fr,corrections:p.corrections||[],upgrade:p.upgrade||null});
     var nc=(p.corrections||[]).map(function(c){ return {original:c.original,fixed:c.fixed,note:c.note,at:Date.now(),seen:0}; });
@@ -456,7 +456,7 @@ function ask(text){
     loading=false; renderChat();
     if(state.speak) speak(p.reply, idx);
   }).catch(function(e){
-    history.pop(); loading=false; chatErr="La réponse n'est pas arrivée ("+e.message+"). Vérifie clé/modèle dans Réglages, puis renvoie."; renderChat();
+    convo.pop(); loading=false; chatErr="La réponse n'est pas arrivée ("+e.message+"). Vérifie clé/modèle dans Réglages, puis renvoie."; renderChat();
   });
 }
 function send(){
@@ -677,7 +677,7 @@ var App={
     if(confirm("Effacer bilan, carnet, série et clé sur cet appareil ?")){
       localStorage.removeItem(KEY); localStorage.removeItem(OLD);
       state={ groqKey:"", model:"openai/gpt-oss-120b", profile:null, notebook:{corrections:[],expressions:[]}, log:{}, goal:3, speak:true };
-      scenario=null; messages=[]; history=[]; current="coach"; render();
+      scenario=null; messages=[]; convo=[]; current="coach"; render();
     }
   }
 };
